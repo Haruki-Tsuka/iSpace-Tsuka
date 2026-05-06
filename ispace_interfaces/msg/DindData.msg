@@ -1,0 +1,9 @@
+string hostname
+
+int16 frame_width
+int16 frame_height
+
+std_msgs/Float32MultiArray tvec
+std_msgs/Float32MultiArray rvec
+std_msgs/Float32MultiArray camera_matrix
+std_msgs/Float32MultiArray dist_coeffs

@@ -1,0 +1,12 @@
+# pip install -r requirements.txt
+# pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+
+kachaka-api
+scipy>=1.4.1
+pandas
+matplotlib
+pyrealsense2
+scikit-learn==1.1.1
+lap
+filterpy
+numpy==1.23.5
