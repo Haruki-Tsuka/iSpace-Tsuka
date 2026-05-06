@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 import time
 from utils.coords_converter import CoordsConverter
+from utils.realsense_manager import RealSenseManager
 
 import kachaka_api
 import threading
@@ -70,9 +71,8 @@ class LoggingMap():
             cv2.circle(img, (coord[0], coord[1]), 3, (0, 0, 255), -1)
         return img
 
-cap = cv2.VideoCapture(0)
-cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)  # 幅の設定
-cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)  # 高さの設定
+
+rs_manager = RealSenseManager(640, 480, 30)
 img = None
 log_map = LoggingMap()
 map_img = log_map.get_original_map()
@@ -119,7 +119,8 @@ def move_pos(x,y):
 def main():
     global img
     while True:
-        ret, img = cap.read()
+        rs_manager.update()
+        img = rs_manager.get_img()
         axis_length = 1  # 例として50単位
 
         # ワールド座標系での原点と各軸の端点を定義
