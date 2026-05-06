@@ -1,3 +1,4 @@
 *.zip
 *.onnx
 *.engine
+*.pt
