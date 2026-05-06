@@ -304,6 +304,7 @@ def load_config(dind: DIND):
     config.add_default('frame.width', 640)
 
     config.add_default('apps.default', [
+        'new_bring_candy.py'
         'result_csv.py'
         'result_show.py'
     ])
