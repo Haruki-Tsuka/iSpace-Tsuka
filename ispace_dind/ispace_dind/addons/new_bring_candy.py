@@ -18,7 +18,7 @@ class BringCandy(AddonBase):
 
     def __init__(self, node):
         self.node = node
-        self.client = kachaka_api.KachakaApiClient('192.168.1.193:26400')
+        self.client = kachaka_api.KachakaApiClient('192.168.1.193')
         self.hand_up_count = {}
         self.tracked_id = -1
         self.count = 0
