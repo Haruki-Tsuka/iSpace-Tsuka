@@ -95,6 +95,7 @@ def map_click_event(event, x, y, flags, param):
         circle_list.append((pixel_coords[0,0], pixel_coords[0,1]))
 
 def main():
+    global map_img
     while True:
         rs_manager.update()
         img = rs_manager.get_img()
