@@ -6,7 +6,7 @@ from utils.file_manager import CSVFileManager, ConfigManager
 # manager = ConfigManager('setting.ini')
 # ip = manager.get('KACHAKA', 'ip')
 
-ip = '192.168.1.164'
+ip = '192.168.1.193'
 
 if not ip:
     raise ValueError('KachakaIPが見つかりませんでした')
