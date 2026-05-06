@@ -2,7 +2,7 @@ import kachaka_api
 from PIL import Image
 import io
 
-client = kachaka_api.KachakaApiClient('192.168.1.164:26400')
+client = kachaka_api.KachakaApiClient('192.168.1.193:26400')
 
 map = client.get_png_map()
 print(map.name)
