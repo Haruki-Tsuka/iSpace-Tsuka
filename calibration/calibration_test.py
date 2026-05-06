@@ -1,9 +1,10 @@
 import numpy as np
 import cv2
 import time
-from utils.realsense_manager import RealSenseManager
-from utils.coords_converter import CoordsConverter
+from coords_converter import CoordsConverter
 
+import kachaka_api
+import threading
 
 class LoggingMap():
 
@@ -12,6 +13,7 @@ class LoggingMap():
     position_y = -11.5681
     width = 703
     height = 770
+
 
     def __init__(self):
         self.map_img = cv2.imread("map.png")
@@ -68,37 +70,56 @@ class LoggingMap():
             cv2.circle(img, (coord[0], coord[1]), 3, (0, 0, 255), -1)
         return img
 
-rs_manager = RealSenseManager()
+cap = cv2.VideoCapture(0)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)  # 幅の設定
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)  # 高さの設定
+img = None
 log_map = LoggingMap()
 map_img = log_map.get_original_map()
 
 mtx = np.load('results/mtx.npy')
+
+
 dist = np.load('results/dist.npy')
+
 rvec = np.load('results/rvecs.npy')
 tvec = np.load('results/tvecs.npy')
 convertor = CoordsConverter(tvec, rvec, mtx, dist)
 circle_list = []
 
+print(f"rvec: {rvec}")
+print(f"tvec: {tvec}")
+
+
+client = kachaka_api.KachakaApiClient('192.168.1.193:26400')
+
 def click_event(event, x, y, flags, param):
     global map_img
     if event == cv2.EVENT_LBUTTONDOWN:
         coords_3d = convertor.pixel2world(np.array([[x, y]]), 0)
-        log_map.add_data(coords_3d[0,0], coords_3d[0,1], time.time(), rs_manager.get_img(), rs_manager.get_img())
+        print(coords_3d)
+        log_map.add_data(coords_3d[0,0], coords_3d[0,1], time.time(), img, img)
         map_img = log_map.print_map()
+        threading.Thread(target=move_pos, args=(coords_3d[0,0],coords_3d[0,1]), daemon=True).start()
+        
 
 def map_click_event(event, x, y, flags, param):
     global map_img
     if event == cv2.EVENT_LBUTTONDOWN:
         map_img = log_map.print_map()
         world_x, world_y = log_map.map_to_world(x, y)
+        print(f"({world_x}, {world_y})")
         pixel_coords = convertor.world2pixel(np.array([[world_x, world_y, 0]]))
         circle_list.append((pixel_coords[0,0], pixel_coords[0,1]))
 
+def move_pos(x,y):
+    #client.move_to_pose(x, y, 0)
+    pass
+
 def main():
-    global map_img
+    global img
     while True:
-        rs_manager.update()
-        img = rs_manager.get_img()
+        ret, img = cap.read()
         axis_length = 1  # 例として50単位
 
         # ワールド座標系での原点と各軸の端点を定義
@@ -128,9 +149,6 @@ def main():
         image = cv2.line(image, origin, tuple(imgpts[3]), (255, 0, 0), 3)
         for circle in circle_list:
             cv2.circle(image, tuple(circle), 5, (0, 0, 255), -1)
-        #imageとmap_imgを2倍に拡大
-        image = cv2.resize(image, (image.shape[1] * 2, image.shape[0] * 2))
-        map_img = cv2.resize(map_img, (map_img.shape[1] * 2, map_img.shape[0] * 2))
         cv2.imshow("RealSense", image)
         cv2.setMouseCallback("RealSense", click_event)
         cv2.imshow("Map", map_img)
@@ -140,4 +158,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
