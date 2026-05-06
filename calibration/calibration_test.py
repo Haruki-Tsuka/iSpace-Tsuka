@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 import time
-from coords_converter import CoordsConverter
+from utils.coords_converter import CoordsConverter
 
 import kachaka_api
 import threading
