@@ -69,7 +69,15 @@ class ImprovedRaySync(DataSync):
         self.person_tracker_manager.predict_all_trackers()
         update_trackers = []
         if len(observed_data_list) == 0:
-            self.node.event_handler.emit(Event.DATA_SYNC_EVENT, update_trackers, observed_data_list)
+            frame = self.node.camera.get_img()
+            observer_timestamp = self.node.observer.get_last_timestamp()
+            event_data = {
+                'update_trackers': update_trackers,
+                'frame': frame,
+                'dsu': self.dsu,
+                'timestamp': observer_timestamp
+            }
+            self.node.event_handler.emit(Event.DATA_SYNC_EVENT, event_data)
             return
         
         frame = self.node.camera.get_img()
