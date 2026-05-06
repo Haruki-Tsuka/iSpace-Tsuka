@@ -94,9 +94,9 @@ class BringCandy(AddonBase):
             self.publish_goal_point(self.goal_x, self.goal_y, -100.0)
             self.client.speak(msg, cancel_all=True)
 
-    def bring_candy(self, data):
+    def bring_candy(self, update_trackers, observed_data_list):
 
-        frame = data['frame']
+        frame = self.node.camera_img
         if self.called_uid is not None:
             local_id = self.node.data_sync.dsu.get_local_id_from_unique(self.called_uid)
             if local_id is not None and local_id > 0:
@@ -110,7 +110,7 @@ class BringCandy(AddonBase):
             cv2.circle(frame, tuple(map(int, goal_pixel[0])), 10, (0, 0, 255), 2)
         if self.tracked_id != -1 and self.detect_count % 5 == 0:
             self.kachaka_pose = self.client.get_robot_pose()
-        for tracker in data['update_trackers']:
+        for tracker in update_trackers:
             if tracker.observed_data.data == 'TRACKING' and self.tracked_id == -1:
                 self.tracked_id = tracker.get_local_id()
             if tracker.get_local_id() <= -1:
@@ -189,7 +189,7 @@ class BringCandy(AddonBase):
                     threading.Thread(target=self.speak_kachaka, args=('ターゲットを見失いました。', 1)).start()
 
         if self.clicked_x != -1 and self.clicked_y != -1:
-            for tracker in data['update_trackers']:
+            for tracker in update_trackers:
                 if tracker.observed_data.bbox[0] < self.clicked_x < tracker.observed_data.bbox[2] and tracker.observed_data.bbox[1] < self.clicked_y < tracker.observed_data.bbox[3]:
                     self.tracked_id = tracker.get_local_id()
                     self.tracked_id_pub.publish(String(data=f'{self.node.hostname}_{tracker.get_local_id()}'))
