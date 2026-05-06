@@ -8,10 +8,10 @@ from utils.coords_converter import CoordsConverter
 class LoggingMap():
 
     resolution = 0.02500000037252903
-    position_x = -5.80295
-    position_y = -7.17123
-    width = 870
-    height = 464
+    position_x = -8.19429
+    position_y = -11.5681
+    width = 703
+    height = 770
 
     def __init__(self):
         self.map_img = cv2.imread("map.png")
