@@ -166,6 +166,8 @@ class BringCandy(AddonBase):
 
                     print("===== GOAL DEBUG =====")
                     print(f"tracker_id: {tracker.get_local_id()}")
+                    print(f"bbox: {tracker.observed_data.bbox}")
+                    print(f"foot_pixel: {foot_pixel}")
                     print(f"goal_x: {self.goal_x}")
                     print(f"goal_y: {self.goal_y}")
                     print(f"ekf position: {tracker.ekf.get_x()}")
