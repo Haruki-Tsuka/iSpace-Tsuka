@@ -11,7 +11,7 @@ from std_msgs.msg import String
 class BringCandy(AddonBase):
 
     COUNT_THRESHOLD = 30
-    TRACK_CHECK_COUNT = 100
+    TRACK_CHECK_COUNT = 50
     CANDY_HIGHT = 0.45
     DETECT_AREA = 0.4
     COOL_TIME = 60
@@ -136,6 +136,16 @@ class BringCandy(AddonBase):
                     self.tracked_id_pub.publish(String(data=f'{self.node.hostname}_{tracker.get_local_id()}'))
                     self.goal_x = tracker.ekf.ekf.x[0]
                     self.goal_y = tracker.ekf.ekf.x[1]
+
+                    print("===== GOAL DEBUG =====")
+                    print(f"tracker_id: {tracker.get_local_id()}")
+                    print(f"goal_x: {self.goal_x}")
+                    print(f"goal_y: {self.goal_y}")
+                    print(f"goal_z: {self.goal_z}")
+                    print(f"ekf position: {tracker.ekf.get_x()}")
+                    print(f"observed coord: {tracker.observed_data.coord}")
+                    print("======================")
+
                     threading.Thread(target=self.kachaka_call, args=(self.goal_x, self.goal_y, f'もうすぐバレンタイン！チョコを届けます！')).start()
                     break
                     
