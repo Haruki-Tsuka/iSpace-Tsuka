@@ -94,6 +94,30 @@ class BringCandy(AddonBase):
             self.publish_goal_point(self.goal_x, self.goal_y, -100.0)
             self.client.speak(msg, cancel_all=True)
 
+    def shift_goal_toward_robot(self, goal_x, goal_y, offset=0.5):
+        try:
+            pose = self.client.get_robot_pose()
+            robot_x = pose.x
+            robot_y = pose.y
+
+            # カチャカ → ターゲット のベクトル
+            vec = np.array([goal_x - robot_x, goal_y - robot_y], dtype=np.float32)
+            dist = np.linalg.norm(vec)
+
+            if dist < 1e-6:
+                return goal_x, goal_y
+
+            unit_vec = vec / dist
+
+            # ターゲットより offset m 手前にする
+            shifted_goal = np.array([goal_x, goal_y]) - offset * unit_vec
+
+            return float(shifted_goal[0]), float(shifted_goal[1])
+
+        except Exception as e:
+            print("カチャカ現在位置の取得に失敗:", e)
+            return goal_x, goal_y
+
     def bring_candy(self, data):
 
         frame = data['frame']
@@ -134,8 +158,13 @@ class BringCandy(AddonBase):
                 if count_hand_up >= self.COUNT_THRESHOLD:
                     self.tracked_id = tracker.get_local_id()
                     self.tracked_id_pub.publish(String(data=f'{self.node.hostname}_{tracker.get_local_id()}'))
-                    self.goal_x = tracker.ekf.ekf.x[0]
-                    self.goal_y = tracker.ekf.ekf.x[1]
+                    # self.goal_x = tracker.ekf.ekf.x[0]
+                    # self.goal_y = tracker.ekf.ekf.x[1]
+
+                    raw_goal_x = float(tracker.ekf.ekf.x[0])
+                    raw_goal_y = float(tracker.ekf.ekf.x[1])
+
+                    self.goal_x, self.goal_y = self.shift_goal_toward_robot(raw_goal_x, raw_goal_y, offset=0.3)
 
                     print("===== GOAL DEBUG =====")
                     print(f"tracker_id: {tracker.get_local_id()}")
@@ -144,7 +173,7 @@ class BringCandy(AddonBase):
                     print(f"observed coord: {tracker.observed_data.coord}")
                     print("======================")
 
-                    threading.Thread(target=self.kachaka_call, args=(self.goal_x, self.goal_y, f'もうすぐバレンタイン！チョコを届けます！')).start()
+                    threading.Thread(target=self.kachaka_call, args=(self.goal_x, self.goal_y, f'研究室見学にようこそ！お菓子を届けます！')).start()
                     break
                     
             else:
@@ -154,8 +183,21 @@ class BringCandy(AddonBase):
                     if self.count > self.TRACK_CHECK_COUNT:
                         self.count = 0
                         if np.sqrt((self.goal_x-tracker.ekf.ekf.x[0])**2+(self.goal_y-tracker.ekf.ekf.x[1])**2) > 2.0:
-                            self.goal_x = tracker.ekf.ekf.x[0]
-                            self.goal_y = tracker.ekf.ekf.x[1]
+                            # self.goal_x = tracker.ekf.ekf.x[0]
+                            # self.goal_y = tracker.ekf.ekf.x[1]
+
+
+                            raw_goal_x = float(tracker.ekf.ekf.x[0])
+                            raw_goal_y = float(tracker.ekf.ekf.x[1])
+
+                            new_goal_x, new_goal_y = self.shift_goal_toward_robot(raw_goal_x, raw_goal_y, offset=0.3)
+
+                            if np.sqrt((self.goal_x - new_goal_x) ** 2 + (self.goal_y - new_goal_y) ** 2) > 2.0:
+                                self.goal_x = new_goal_x
+                                self.goal_y = new_goal_y
+
+                                threading.Thread(target=self.kachaka_call, args=(self.goal_x, self.goal_y)).start()
+
                             threading.Thread(target=self.kachaka_call, args=(self.goal_x, self.goal_y)).start()
                             print('===================')
                             print('KACHAKA_CALL', self.goal_x, self.goal_y)
@@ -176,7 +218,7 @@ class BringCandy(AddonBase):
                         cv2.rectangle(frame, tuple(map(int, candy_pixel[0])), tuple(map(int, candy_pixel[1])), (0, 255, 0), 2)
                         #candy_pixelのbbox範囲内に、handsのどちらかが存在するかを判定
                         good_message = "美味しく召し上がれ！"
-                        bad_message = "チョコを勝手に取らないで。"
+                        bad_message = "お菓子を勝手に取らないで。"
                         if np.min(candy_pixel[:,0]) < hands[0,0] < np.max(candy_pixel[:,0]) and np.min(candy_pixel[:,1]) < hands[0,1] < np.max(candy_pixel[:,1]):
                             if self.tracked_id == tracker.get_local_id():
                                 threading.Thread(target=self.speak_kachaka, args=(good_message, 1)).start()

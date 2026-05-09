@@ -68,6 +68,12 @@ class ImprovedRaySync(DataSync):
     def assosiate_data(self, observed_data_list:List[ObservedPersonData]):
         self.person_tracker_manager.predict_all_trackers()
         update_trackers = []
+
+            # observer.observe() が None を返した場合の対策
+        if observed_data_list is None:
+            observed_data_list = []
+
+            
         if len(observed_data_list) == 0:
             frame = self.node.camera.get_img()
             observer_timestamp = self.node.observer.get_last_timestamp()
