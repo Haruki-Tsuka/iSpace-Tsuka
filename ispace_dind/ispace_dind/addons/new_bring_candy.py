@@ -94,26 +94,6 @@ class BringCandy(AddonBase):
             self.publish_goal_point(self.goal_x, self.goal_y, -100.0)
             self.client.speak(msg, cancel_all=True)
 
-    def get_goal_from_bbox_bottom(self, tracker):
-        bbox = tracker.observed_data.bbox
-
-        if bbox is None:
-            return None, None, None
-
-        # bbox下辺の中心 = 人の足元付近
-        foot_pixel = np.array([[
-            (bbox[0] + bbox[2]) / 2,
-            bbox[3]
-        ]], dtype=np.float32)
-
-        # 画像座標を床面 z=0 のワールド座標へ変換
-        goal_world = self.node.coords_converter.pixel2world(foot_pixel, 0)
-
-        goal_x = float(goal_world[0, 0])
-        goal_y = float(goal_world[0, 1])
-
-        return goal_x, goal_y, foot_pixel
-
     def bring_candy(self, data):
 
         frame = data['frame']
@@ -154,23 +134,13 @@ class BringCandy(AddonBase):
                 if count_hand_up >= self.COUNT_THRESHOLD:
                     self.tracked_id = tracker.get_local_id()
                     self.tracked_id_pub.publish(String(data=f'{self.node.hostname}_{tracker.get_local_id()}'))
-                    # self.goal_x = tracker.ekf.ekf.x[0]
-                    # self.goal_y = tracker.ekf.ekf.x[1]
-                    goal_x, goal_y, foot_pixel = self.get_goal_from_bbox_bottom(tracker)
-
-                    if goal_x is None:
-                        continue
-
-                    self.goal_x = goal_x
-                    self.goal_y = goal_y
+                    self.goal_x = tracker.ekf.ekf.x[0]
+                    self.goal_y = tracker.ekf.ekf.x[1]
 
                     print("===== GOAL DEBUG =====")
                     print(f"tracker_id: {tracker.get_local_id()}")
-                    print(f"bbox: {tracker.observed_data.bbox}")
-                    print(f"foot_pixel: {foot_pixel}")
                     print(f"goal_x: {self.goal_x}")
                     print(f"goal_y: {self.goal_y}")
-                    print(f"ekf position: {tracker.ekf.get_x()}")
                     print(f"observed coord: {tracker.observed_data.coord}")
                     print("======================")
 
