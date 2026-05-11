@@ -164,7 +164,7 @@ class BringCandy(AddonBase):
                     raw_goal_x = float(tracker.ekf.ekf.x[0])
                     raw_goal_y = float(tracker.ekf.ekf.x[1])
 
-                    self.goal_x, self.goal_y = self.shift_goal_toward_robot(raw_goal_x, raw_goal_y, offset=0.3)
+                    self.goal_x, self.goal_y = self.shift_goal_toward_robot(raw_goal_x, raw_goal_y, offset=0.0)
 
                     print("===== GOAL DEBUG =====")
                     print(f"tracker_id: {tracker.get_local_id()}")
@@ -190,7 +190,7 @@ class BringCandy(AddonBase):
                             raw_goal_x = float(tracker.ekf.ekf.x[0])
                             raw_goal_y = float(tracker.ekf.ekf.x[1])
 
-                            new_goal_x, new_goal_y = self.shift_goal_toward_robot(raw_goal_x, raw_goal_y, offset=0.3)
+                            new_goal_x, new_goal_y = self.shift_goal_toward_robot(raw_goal_x, raw_goal_y, offset=0.0)
 
                             if np.sqrt((self.goal_x - new_goal_x) ** 2 + (self.goal_y - new_goal_y) ** 2) > 2.0:
                                 self.goal_x = new_goal_x
