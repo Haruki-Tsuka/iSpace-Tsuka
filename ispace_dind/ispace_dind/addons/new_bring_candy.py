@@ -11,7 +11,7 @@ from std_msgs.msg import String
 class BringCandy(AddonBase):
 
     COUNT_THRESHOLD = 30
-    TRACK_CHECK_COUNT = 50
+    TRACK_CHECK_COUNT = 100
     CANDY_HIGHT = 0.45
     DETECT_AREA = 0.4
     COOL_TIME = 60
