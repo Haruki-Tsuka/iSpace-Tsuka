@@ -217,8 +217,8 @@ class BringCandy(AddonBase):
                         hands = tracker.observed_data.keypoints[[9,10]]
                         cv2.rectangle(frame, tuple(map(int, candy_pixel[0])), tuple(map(int, candy_pixel[1])), (0, 255, 0), 2)
                         #candy_pixelのbbox範囲内に、handsのどちらかが存在するかを判定
-                        good_message = "美味しく召し上がれ！"
-                        bad_message = "お菓子を勝手に取らないで。"
+                        good_message = "研究室見学楽しんでください！"
+                        bad_message = "いろんな研究がありますよ！"
                         if np.min(candy_pixel[:,0]) < hands[0,0] < np.max(candy_pixel[:,0]) and np.min(candy_pixel[:,1]) < hands[0,1] < np.max(candy_pixel[:,1]):
                             if self.tracked_id == tracker.get_local_id():
                                 threading.Thread(target=self.speak_kachaka, args=(good_message, 1)).start()
